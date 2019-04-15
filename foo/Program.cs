@@ -23,28 +23,41 @@ namespace foo
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             var config = configBuilder.Build();
-            
+
+            // connect to RabbitMQ
+            var conn = (new ConnectionFactory()
+            {
+                HostName = config["RabbitMQ:Connection:Hostname"],
+                UserName = config["RabbitMQ:Connection:Username"],
+                Password = config["RabbitMQ:Connection:Password"],
+                VirtualHost = config["RabbitMQ:Connection:Vhost"]
+            }).CreateConnection();
+
             var hostBuilder = new HostBuilder()
                 .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
                 .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
                 .ConfigureServices((context, services) => {
                     services.AddApplicationInsightsTelemetry();
-                    services.AddSingleton<IConnection>(
-                        (new ConnectionFactory()
-                        {
-                            HostName = config["RabbitMQ:Connection:Hostname"],
-                            UserName = config["RabbitMQ:Connection:Username"],
-                            Password = config["RabbitMQ:Connection:Password"],
-                            VirtualHost = config["RabbitMQ:Connection:Vhost"]
-                        })
-                        .CreateConnection());
+                    services.AddSingleton<IConnection>(conn);
                 });          
             var host = hostBuilder.Build();
 
+            // token signing key
+            byte[] tokenKey;
+
             // configure App Insights instrumentation key through RabbitMQ exchange
-            await TelemetryKeyConfigurator.ConfigureAsync(
-                config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"],
-                host.Services.GetRequiredService<IConnection>());
+            await Task.WhenAll(
+                TelemetryKeyConfigurator.ConfigureAsync(
+                    config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"],
+                    conn),
+                TokenIssuerKeyDistributor.ConfigureAsync(
+                    config["TokenIssuerKeyDistribution"], 
+                    conn,
+                    value => tokenKey = value));
+
+            await ReadyChecker.SendReadyAsync(
+                config["RabbitMQ:Exchanges:ReadyCheck"], 
+                conn, "foo");
 
             await host.RunAsync();
 

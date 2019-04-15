@@ -12,6 +12,11 @@ using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using lib;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Linq;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace cli
 {
@@ -43,45 +48,52 @@ namespace cli
             var waitPeers = ReadyChecker.WaitPeersAsync(config["RabbitMQ:Exchanges:ReadyCheck"], conn, new List<string> { "apigw", "bang", "bar", "fib", "foo" });
 
             // configure App Insights instrumentation key from CLI to self and to peers
-            var keyExchange = config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"];
-            var configureSelf = TelemetryKeyConfigurator.ConfigureAsync(keyExchange, conn);     // task to configure self through exchange
-            var configurePeersCancel = new CancellationTokenSource();
-            var configurePeers = Task.Run(async () =>                                           // task to read key and send it to exchange
+            var aiKeyExchange = config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"];
+            var aiConfigureSelf = TelemetryKeyConfigurator.ConfigureAsync(aiKeyExchange, conn);     // task to configure self through exchange
+            var aiConfigurePeersCancel = new CancellationTokenSource();
+            var aiConfigurePeers = Task.Run(async () =>                                           // task to read key and send it to exchange
             {
                 Console.WriteLine("Please enter your Application Insights instrumentation key: ");
                 var aiKey = Console.ReadLine();
-                await TelemetryKeyConfigurator.ConfigurePeersAsync(keyExchange, conn, aiKey);
-            }, configurePeersCancel.Token);
-            await configureSelf.ContinueWith(r =>
+                await TelemetryKeyConfigurator.ConfigurePeersAsync(aiKeyExchange, conn, aiKey);
+            }, aiConfigurePeersCancel.Token);
+            await aiConfigureSelf.ContinueWith(r =>
             {
                 // if we got key from exchange no matter how (may be not from aiConfigurePeersTask)
                 // then cancel aiConfigurePeersTask (if it's still running)
-                configurePeersCancel.Cancel();
+                aiConfigurePeersCancel.Cancel();
             });
 
-            // build host
-            var hostBuilder = new HostBuilder()
-                .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
-                .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
-                .ConfigureServices((context, services) => {
-                    services.AddApplicationInsightsTelemetry();
-                    services.AddHttpClient();
-                });
-            host = hostBuilder.Build();
+            // configure key for token signing
+            var tokenKey = GenKey();
+            var tokenConfigurePeersCancel = new CancellationTokenSource();
+            await TokenIssuerKeyDistributor.ConfigurePeersAsync(config["TokenIssuerKeyDistribution"], conn, tokenKey);
 
-#pragma warning disable 4014
-
-            // run host
-            var hostCancellation = new CancellationTokenSource();
-
-            host.RunAsync(hostCancellation.Token);
-
+            // if peers are ready
             if (await Task.WhenAny(waitPeers, Task.Delay(2000)) == waitPeers)
             {
                 // Task completed within timeout.
                 // Consider that the task may have faulted or been canceled.
                 // We re-await the task so that any exceptions/cancellation is rethrown.
                 await waitPeers;
+
+                // build host
+                var hostBuilder = new HostBuilder()
+                    .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
+                    .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
+                    .ConfigureServices((context, services) => {
+                        services.AddApplicationInsightsTelemetry();
+                        services.AddHttpClient();
+                    });
+                host = hostBuilder.Build();
+
+#pragma warning disable 4014
+
+                // run host
+                var hostCancellation = new CancellationTokenSource();
+                host.RunAsync(hostCancellation.Token);
+
+#pragma warning restore 4014
 
                 // perform demo scenarios based on user choise
                 switch (GetCase())
@@ -101,8 +113,9 @@ namespace cli
                     case 'q':
                         Console.WriteLine("Bye!");
                         host.Services.GetRequiredService<TelemetryClient>().Flush();
-                        //host.StopAsync();
                         Task.Delay(500).Wait();
+
+                        // kill host
                         hostCancellation.Cancel();
                         return;
                 }
@@ -112,13 +125,8 @@ namespace cli
                 // timeout/cancellation logic
                 Console.WriteLine();
                 Console.WriteLine("Sorry, but some services are not ready for this demo. Check if docker is running all containters of docker-compose.yml.");
-                //host.StopAsync();
-                hostCancellation.Cancel();
                 return;
             }
-            
-#pragma warning restore 4014
-            
         }
 
         static char GetCase()
@@ -173,6 +181,29 @@ namespace cli
         static void RunCase4()
         {
 
+        }
+
+        static byte[] GenKey()
+        {
+            var random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return Encoding.ASCII.GetBytes(new string(Enumerable.Repeat(chars, 256).Select(s => s[random.Next(s.Length)]).ToArray()));
+        }
+
+        static string GenToken(byte[] key, string name)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, name)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

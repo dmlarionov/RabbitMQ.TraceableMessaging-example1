@@ -18,14 +18,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="RabbitMQ.Client" />
-    <PackageReference Include="RabbitMQ.TraceableMessaging.ApplicationInsights"/>
+    <PackageReference Include="RabbitMQ.TraceableMessaging.ApplicationInsights" />
     <PackageReference Include="RabbitMQ.TraceableMessaging.Jwt" />
     <PackageReference Include="RabbitMQ.TraceableMessaging.Json" />
     <PackageReference Include="RabbitMQ.TraceableMessaging.YamlDotNet" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="xcopy /y appsettings.json &quot;$(TargetDir)&quot;" />
+    <Exec Command="xcopy /Y appsettings.json &quot;$(TargetDir)&quot;" />
   </Target>
 
 </Project>

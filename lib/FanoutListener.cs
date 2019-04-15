@@ -35,7 +35,8 @@ namespace lib
             {
                 // don't care about interference on exchange declaration
             }
-            var queue = _channel.QueueDeclare(exclusive: true);
+            var queueName = $"fanout-subscription-{Guid.NewGuid().ToString()}";
+            var queue = _channel.QueueDeclare(queueName);
             _channel.QueueBind(queue.QueueName, exchange, "");
             _subscriber = new Consumer<JwtSecurityContext>(
                 _channel,
