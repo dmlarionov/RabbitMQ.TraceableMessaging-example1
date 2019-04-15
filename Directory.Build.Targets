@@ -1,10 +1,10 @@
 <Project>
   <ItemGroup>
     <PackageReference Update="RabbitMQ.Client" Version="[5.1.0,6.0.0)" />
-    <PackageReference Update="RabbitMQ.TraceableMessaging" Version="[1.1.15,1.2.0)" />
-    <PackageReference Update="RabbitMQ.TraceableMessaging.Jwt" Version="[1.1.15,1.2.0)" />
-    <PackageReference Update="RabbitMQ.TraceableMessaging.Json" Version="[1.1.15,1.2.0)" />
-    <PackageReference Update="RabbitMQ.TraceableMessaging.YamlDotNet" Version="[1.1.15,1.2.0)" />
-    <PackageReference Update="RabbitMQ.TraceableMessaging.ApplicationInsights" Version="[1.1.15,1.2.0)" />
+    <PackageReference Update="RabbitMQ.TraceableMessaging" Version="[1.1.16,1.2.0)" />
+    <PackageReference Update="RabbitMQ.TraceableMessaging.Jwt" Version="[1.1.16,1.2.0)" />
+    <PackageReference Update="RabbitMQ.TraceableMessaging.Json" Version="[1.1.16,1.2.0)" />
+    <PackageReference Update="RabbitMQ.TraceableMessaging.YamlDotNet" Version="[1.1.16,1.2.0)" />
+    <PackageReference Update="RabbitMQ.TraceableMessaging.ApplicationInsights" Version="[1.1.16,1.2.0)" />
   </ItemGroup>
 </Project>

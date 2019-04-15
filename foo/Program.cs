@@ -41,17 +41,15 @@ namespace foo
                 });          
             var host = hostBuilder.Build();
 
-            // configure app insights instrumentation key from CLI through RabbitMQ exchange
+            // configure App Insights instrumentation key through RabbitMQ exchange
             await TelemetryKeyConfigurator.ConfigureAsync(
                 config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"],
                 host.Services.GetRequiredService<IConnection>());
 
-            var telemetryClient = host.Services.GetRequiredService<TelemetryClient>();
-            
             await host.RunAsync();
 
             await Task.Run(() => {
-                telemetryClient.Flush();
+                host.Services.GetService<TelemetryClient>()?.Flush();
                 Task.Delay(500).Wait();
             });
         }
