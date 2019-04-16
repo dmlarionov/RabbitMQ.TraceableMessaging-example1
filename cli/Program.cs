@@ -22,8 +22,6 @@ namespace cli
 {
     class Program
     {
-        static IHost host;
-
         static async Task Main(string[] args)
         {
             string basePath = (Debugger.IsAttached) ? Directory.GetCurrentDirectory() : AppDomain.CurrentDomain.BaseDirectory;
@@ -67,7 +65,7 @@ namespace cli
             // configure key for token signing
             var tokenKey = GenKey();
             var tokenConfigurePeersCancel = new CancellationTokenSource();
-            await TokenIssuerKeyDistributor.ConfigurePeersAsync(config["TokenIssuerKeyDistribution"], conn, tokenKey);
+            await TokenIssuerKeyDistributor.ConfigurePeersAsync(config["RabbitMQ:Exchanges:TokenIssuerKeyDistribution"], conn, tokenKey);
 
             // if peers are ready
             if (await Task.WhenAny(waitPeers, Task.Delay(2000)) == waitPeers)
@@ -76,24 +74,6 @@ namespace cli
                 // Consider that the task may have faulted or been canceled.
                 // We re-await the task so that any exceptions/cancellation is rethrown.
                 await waitPeers;
-
-                // build host
-                var hostBuilder = new HostBuilder()
-                    .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
-                    .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
-                    .ConfigureServices((context, services) => {
-                        services.AddApplicationInsightsTelemetry();
-                        services.AddHttpClient();
-                    });
-                host = hostBuilder.Build();
-
-#pragma warning disable 4014
-
-                // run host
-                var hostCancellation = new CancellationTokenSource();
-                host.RunAsync(hostCancellation.Token);
-
-#pragma warning restore 4014
 
                 // perform demo scenarios based on user choise
                 switch (GetCase())
@@ -112,11 +92,6 @@ namespace cli
                         break;
                     case 'q':
                         Console.WriteLine("Bye!");
-                        host.Services.GetRequiredService<TelemetryClient>().Flush();
-                        Task.Delay(500).Wait();
-
-                        // kill host
-                        hostCancellation.Cancel();
                         return;
                 }
             }

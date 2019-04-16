@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
@@ -22,6 +23,7 @@ namespace lib
             string exchange, 
             IConnection conn)
         {
+            var queueName = $"fanout-subscription-{Guid.NewGuid().ToString()}";
             _channel = conn.CreateModel();
             try
             {
@@ -35,12 +37,12 @@ namespace lib
             {
                 // don't care about interference on exchange declaration
             }
-            var queueName = $"fanout-subscription-{Guid.NewGuid().ToString()}";
-            var queue = _channel.QueueDeclare(queueName);
-            _channel.QueueBind(queue.QueueName, exchange, "");
+            _channel.QueueDeclare(queueName);
+            //_channel.QueueDeclareNoWait(queueName, false, true, true, new Dictionary<string, object>());
+            _channel.QueueBind(queueName, exchange, "");
             _subscriber = new Consumer<JwtSecurityContext>(
                 _channel,
-                new ConsumeOptions(queue) { AutoAck = true },
+                new ConsumeOptions(queueName) { AutoAck = true },
                 new TFormatOptions());
             _subscriber.Received += OnReceive;
         }

@@ -51,7 +51,7 @@ namespace foo
                     config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"],
                     conn),
                 TokenIssuerKeyDistributor.ConfigureAsync(
-                    config["TokenIssuerKeyDistribution"], 
+                    config["RabbitMQ:Exchanges:TokenIssuerKeyDistribution"], 
                     conn,
                     value => tokenKey = value));
 
