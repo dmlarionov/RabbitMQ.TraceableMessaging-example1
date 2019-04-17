@@ -19,8 +19,8 @@ namespace lib
     /// </summary>
     public sealed class ReadyChecker : FanoutListener<YamlFormatOptions>
     {
-        private IDictionary<string, bool> _ready = new Dictionary<string, bool>();
-        private TaskCompletionSource<bool> _completion;
+        private readonly IDictionary<string, bool> _ready = new Dictionary<string, bool>();
+        private readonly TaskCompletionSource<bool> _completion;
 
         public ReadyChecker(
             string exchange,

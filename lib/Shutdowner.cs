@@ -14,17 +14,17 @@ using RabbitMQ.TraceableMessaging.Options;
 namespace lib
 {
     /// <summary>
-    /// Set JWT issuer key on remote peers by sending it over RabbitMQ
+    /// Distribute command to shutdown
     /// </summary>
-    public sealed class TokenIssuerKeyDistributor : FanoutListener<YamlFormatOptions>
+    public sealed class Shutdowner : FanoutListener<YamlFormatOptions>
     {
-        private TaskCompletionSource<bool> _completion;
-        private Action<byte[]> _action;
+        private readonly TaskCompletionSource<bool> _completion;
+        private readonly Action _action;
 
-        public TokenIssuerKeyDistributor(
+        public Shutdowner(
             string exchange,
             IConnection conn,
-            Action<byte[]> action,
+            Action action,
             TaskCompletionSource<bool> completion) : base(
                 exchange,
                 conn)
@@ -35,38 +35,37 @@ namespace lib
 
         protected override void OnReceive(object sender, RequestEventArgsBase ea)
         {
-            _action(ea.GetRequest<byte[]>());
+            _action();
             _completion.SetResult(true);
         }
 
         /// <summary>
-        /// Set my token issuer key using action by receiving key form RabbitMQ exchange
+        /// Wait for shutdown command then execute action
         /// </summary>
         /// <param name="exchange">RabbitMQ exchange name</param>
         /// <param name="conn">RabbitMQ connection</param>
         /// <param name="action">Action to set key</param>
         /// <returns></returns>
-        public static Task ConfigureAsync(string exchange, IConnection conn, Action<byte[]> action)
+        public static Task ShutdownAsync(string exchange, IConnection conn, Action action)
         {
             var completion = new TaskCompletionSource<bool>();
-            var inst = new TokenIssuerKeyDistributor(exchange, conn, action, completion);
+            var inst = new Shutdowner(exchange, conn, action, completion);
             return completion.Task.ContinueWith(x => inst.Dispose());
         }
 
         /// <summary>
-        /// Set token issuer key to peers through RabbitMQ exchange
+        /// Shutdown peers
         /// </summary>
         /// <param name="exchange">RabbitMQ exchange name</param>
         /// <param name="conn">RabbitMQ connection</param>
-        /// <param name="key">Key value</param>
         /// <returns></returns>
-        public static Task ConfigurePeersAsync(string exchange, IConnection conn, byte[] key)
+        public static Task ShutdownPeersAsync(string exchange, IConnection conn)
         {
             return (new Publisher(
                 conn.CreateModel(),
                 new PublishOptions() { Exchange = exchange },
                 new YamlFormatOptions())
-            ).SendAsync(key);
+            ).SendAsync(new object());
         }
     }
 }

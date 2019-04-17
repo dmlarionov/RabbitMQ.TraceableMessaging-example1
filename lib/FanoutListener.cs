@@ -38,7 +38,7 @@ namespace lib
                 // don't care about interference on exchange declaration
             }
             _channel.QueueDeclare(queueName);
-            //_channel.QueueDeclareNoWait(queueName, false, true, true, new Dictionary<string, object>());
+            //_channel.QueueDeclareNoWait(queueName, false, true, true, new Dictionary<string, object>()); // no wait may be good option if we get pipelining exception from RabbitMQ
             _channel.QueueBind(queueName, exchange, "");
             _subscriber = new Consumer<JwtSecurityContext>(
                 _channel,

@@ -10,11 +10,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using lib;
+using System.Threading;
 
 namespace fib
 {
     class Program
     {
+        static readonly string serviceName = "fib";
+
         static async Task Main(string[] args)
         {
             string basePath = (Debugger.IsAttached) ? Directory.GetCurrentDirectory() : AppDomain.CurrentDomain.BaseDirectory;
@@ -33,6 +36,22 @@ namespace fib
                 VirtualHost = config["RabbitMQ:Connection:Vhost"]
             }).CreateConnection();
 
+            // token signing key
+            byte[] tokenKey;
+
+            // configure keys through RabbitMQ exchange
+            await KeyDistributor.ConfigureAsync(
+                    config["RabbitMQ:Exchanges:KeyDistribution"],
+                    conn,
+                    keys => {
+                        TelemetryConfiguration.Active.InstrumentationKey = keys.AppInsightsInstrumKey;
+                        tokenKey = keys.JwtIssuerKey;
+                    });
+
+            // set app insights developer mode (remove lags when sending telemetry)
+            TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
+
+            // set host configuration
             var hostBuilder = new HostBuilder()
                 .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
                 .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
@@ -42,27 +61,22 @@ namespace fib
                 });
             var host = hostBuilder.Build();
 
-            // token signing key
-            byte[] tokenKey;
+            // telemetry client instance
+            var telemetry = host.Services.GetService<TelemetryClient>();
 
-            // configure App Insights instrumentation key through RabbitMQ exchange
-            await Task.WhenAll(
-                TelemetryKeyConfigurator.ConfigureAsync(
-                    config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"],
-                    conn),
-                TokenIssuerKeyDistributor.ConfigureAsync(
-                    config["RabbitMQ:Exchanges:TokenIssuerKeyDistribution"],
-                    conn,
-                    value => tokenKey = value));
+            // send ready signal
+            await ReadyChecker.SendReadyAsync(config["RabbitMQ:Exchanges:ReadyCheck"], conn, serviceName);
 
-            await ReadyChecker.SendReadyAsync(
-                config["RabbitMQ:Exchanges:ReadyCheck"],
-                conn, "fib");
+            // run host and wait for shutdown signal
+            var cancel = new CancellationTokenSource();
+            await Task.WhenAny(
+                host.RunAsync(cancel.Token),
+                Shutdowner.ShutdownAsync(config["RabbitMQ:Exchanges:Shutdown"], conn, () => cancel.Cancel())
+            );
 
-            await host.RunAsync();
-
+            // flush telemetry
             await Task.Run(() => {
-                host.Services.GetService<TelemetryClient>()?.Flush();
+                telemetry?.Flush();
                 Task.Delay(500).Wait();
             });
         }

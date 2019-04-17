@@ -17,6 +17,7 @@ using System.Text;
 using System.Linq;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using lib.DTO;
 
 namespace cli
 {
@@ -45,27 +46,15 @@ namespace cli
             // wait peers to be ready
             var waitPeers = ReadyChecker.WaitPeersAsync(config["RabbitMQ:Exchanges:ReadyCheck"], conn, new List<string> { "apigw", "bang", "bar", "fib", "foo" });
 
-            // configure App Insights instrumentation key from CLI to self and to peers
-            var aiKeyExchange = config["RabbitMQ:Exchanges:AppInsightsInstrumentationKeyDistribution"];
-            var aiConfigureSelf = TelemetryKeyConfigurator.ConfigureAsync(aiKeyExchange, conn);     // task to configure self through exchange
-            var aiConfigurePeersCancel = new CancellationTokenSource();
-            var aiConfigurePeers = Task.Run(async () =>                                           // task to read key and send it to exchange
-            {
-                Console.WriteLine("Please enter your Application Insights instrumentation key: ");
-                var aiKey = Console.ReadLine();
-                await TelemetryKeyConfigurator.ConfigurePeersAsync(aiKeyExchange, conn, aiKey);
-            }, aiConfigurePeersCancel.Token);
-            await aiConfigureSelf.ContinueWith(r =>
-            {
-                // if we got key from exchange no matter how (may be not from aiConfigurePeersTask)
-                // then cancel aiConfigurePeersTask (if it's still running)
-                aiConfigurePeersCancel.Cancel();
-            });
+            // get App Insights instrumentation key from CLI
+            Console.WriteLine("Please enter your Application Insights instrumentation key: ");
+            var instrumKey = Console.ReadLine();
 
-            // configure key for token signing
+            // generate key for signing tokens
             var tokenKey = GenKey();
-            var tokenConfigurePeersCancel = new CancellationTokenSource();
-            await TokenIssuerKeyDistributor.ConfigurePeersAsync(config["RabbitMQ:Exchanges:TokenIssuerKeyDistribution"], conn, tokenKey);
+
+            // distribute keys
+            await KeyDistributor.ConfigurePeersAsync(config["RabbitMQ:Exchanges:KeyDistribution"], conn, new Keys { AppInsightsInstrumKey = instrumKey, JwtIssuerKey = tokenKey });
 
             // if peers are ready
             if (await Task.WhenAny(waitPeers, Task.Delay(2000)) == waitPeers)
@@ -75,24 +64,30 @@ namespace cli
                 // We re-await the task so that any exceptions/cancellation is rethrown.
                 await waitPeers;
 
+                bool shutdown = false;
+
                 // perform demo scenarios based on user choise
-                switch (GetCase())
+                while (!shutdown)
                 {
-                    case '1':
-                        RunCase1();
-                        break;
-                    case '2':
-                        RunCase2();
-                        break;
-                    case '3':
-                        RunCase3();
-                        break;
-                    case '4':
-                        RunCase4();
-                        break;
-                    case 'q':
-                        Console.WriteLine("Bye!");
-                        return;
+                    switch (GetCase())
+                    {
+                        case '1':
+                            RunCase1();
+                            break;
+                        case '2':
+                            RunCase2();
+                            break;
+                        case '3':
+                            RunCase3();
+                            break;
+                        case '4':
+                            RunCase4();
+                            break;
+                        case 'q':
+                            await Shutdowner.ShutdownPeersAsync(config["RabbitMQ:Exchanges:Shutdown"], conn);
+                            shutdown = true;
+                            break;
+                    }
                 }
             }
             else
@@ -100,8 +95,10 @@ namespace cli
                 // timeout/cancellation logic
                 Console.WriteLine();
                 Console.WriteLine("Sorry, but some services are not ready for this demo. Check if docker is running all containters of docker-compose.yml.");
+                await Shutdowner.ShutdownPeersAsync(config["RabbitMQ:Exchanges:Shutdown"], conn);
                 return;
             }
+            Console.WriteLine("Bye!");
         }
 
         static char GetCase()
