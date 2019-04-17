@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -51,18 +50,18 @@ namespace fib
             // set app insights developer mode (remove lags when sending telemetry)
             TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
 
+            // telemetry client instance
+            var telemetry = new TelemetryClient();
+
             // set host configuration
             var hostBuilder = new HostBuilder()
                 .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
                 .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
                 .ConfigureServices((context, services) => {
-                    services.AddApplicationInsightsTelemetry();
+                    services.AddSingleton<TelemetryClient>(telemetry);
                     services.AddSingleton<IConnection>(conn);
                 });
             var host = hostBuilder.Build();
-
-            // telemetry client instance
-            var telemetry = host.Services.GetService<TelemetryClient>();
 
             // send ready signal
             await ReadyChecker.SendReadyAsync(config["RabbitMQ:Exchanges:ReadyCheck"], conn, serviceName);
@@ -75,10 +74,8 @@ namespace fib
             );
 
             // flush telemetry
-            await Task.Run(() => {
-                telemetry?.Flush();
-                Task.Delay(500).Wait();
-            });
+            telemetry?.Flush();
+            Task.Delay(500).Wait();
         }
     }
 }

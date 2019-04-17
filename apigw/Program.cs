@@ -51,18 +51,18 @@ namespace apigw
             // set app insights developer mode (remove lags when sending telemetry)
             TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
 
+            // telemetry client instance
+            var telemetry = new TelemetryClient();
+
             // set host configuration
             var hostBuilder = new HostBuilder()
                 .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
                 .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
                 .ConfigureServices((context, services) => {
-                    services.AddApplicationInsightsTelemetry();
+                    services.AddSingleton<TelemetryClient>(telemetry);
                     services.AddSingleton<IConnection>(conn);
                 });
             var host = hostBuilder.Build();
-
-            // telemetry client instance
-            var telemetry = host.Services.GetService<TelemetryClient>();
 
             // send ready signal
             await ReadyChecker.SendReadyAsync(config["RabbitMQ:Exchanges:ReadyCheck"], conn, serviceName);
@@ -75,10 +75,8 @@ namespace apigw
             );
 
             // flush telemetry
-            await Task.Run(() => {
-                telemetry?.Flush();
-                Task.Delay(500).Wait();
-            });
+            telemetry?.Flush();
+            Task.Delay(500).Wait();
         }
     }
 }
