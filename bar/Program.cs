@@ -67,15 +67,13 @@ namespace bar
             await ReadyChecker.SendReadyAsync(config["RabbitMQ:Exchanges:ReadyCheck"], conn, serviceName);
 
             // run host and wait for shutdown signal
-            var cancel = new CancellationTokenSource();
-            await Task.WhenAny(
-                host.RunAsync(cancel.Token),
-                Shutdowner.ShutdownAsync(config["RabbitMQ:Exchanges:Shutdown"], conn, () => cancel.Cancel())
-            );
+            await host.StartAsync();
+            await Shutdowner.ShutdownAsync(config["RabbitMQ:Exchanges:Shutdown"], conn, () => host.StopAsync());
 
             // flush telemetry
             telemetry?.Flush();
             Task.Delay(500).Wait();
+            Console.WriteLine("Bye!");
         }
     }
 }
