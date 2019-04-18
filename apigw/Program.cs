@@ -11,6 +11,9 @@ using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using lib;
 using System.Threading;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace apigw
 {
@@ -37,7 +40,7 @@ namespace apigw
             }).CreateConnection();
 
             // token signing key
-            byte[] tokenKey;
+            byte[] tokenKey = null;
 
             // configure keys through RabbitMQ exchange
             await KeyDistributor.ConfigureAsync(
@@ -54,13 +57,25 @@ namespace apigw
             // telemetry client instance
             var telemetry = new TelemetryClient();
 
+            // token validation parameters
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(tokenKey)
+            };
+
             // set host configuration
-            var hostBuilder = new HostBuilder()
-                .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
-                .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
-                .ConfigureServices((context, services) => {
-                    services.AddSingleton<TelemetryClient>(telemetry);
-                    services.AddSingleton<IConnection>(conn);
+            var hostBuilder = new WebHostBuilder()
+                .UseConfiguration(config)
+                .ConfigureServices(services =>
+                {
+                    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                        .AddJwtBearer(options =>
+                        {
+                            options.Audience = "http://localhost:5001";
+                            options.TokenValidationParameters = tokenValidationParameters;
+                        });
                 });
             var host = hostBuilder.Build();
 
