@@ -56,7 +56,6 @@ namespace bar
             // set host configuration
             var hostBuilder = new HostBuilder()
                 .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
-                .ConfigureAppConfiguration((context, appConfig) => appConfig = configBuilder)
                 .ConfigureServices((context, services) => {
                     services.AddSingleton<TelemetryClient>(telemetry);
                     services.AddSingleton<IConnection>(conn);

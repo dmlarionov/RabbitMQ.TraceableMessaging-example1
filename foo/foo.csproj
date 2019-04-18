@@ -22,8 +22,9 @@
     <PackageReference Include="RabbitMQ.TraceableMessaging.Json" />
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="xcopy /Y appsettings.json &quot;$(TargetDir)&quot;" />
-  </Target>
+  <ItemGroup>
+    <Content Include="**\*.json" Exclude="bin\**\*;obj\**\*"
+        CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>
