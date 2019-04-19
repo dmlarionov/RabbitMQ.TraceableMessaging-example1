@@ -53,6 +53,9 @@ namespace fib
             // set app insights developer mode (remove lags when sending telemetry)
             TelemetryConfiguration.Active.TelemetryChannel.DeveloperMode = true;
 
+            // set service name in app insights
+            TelemetryConfiguration.Active.TelemetryInitializers.Add(new CustomTelemetryInitializer(serviceName));
+
             // telemetry client instance
             var telemetry = new TelemetryClient();
 

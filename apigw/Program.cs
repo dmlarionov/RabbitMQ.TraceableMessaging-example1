@@ -78,6 +78,7 @@ namespace apigw
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<IConnection>(conn);
+                    services.AddSingleton<ITelemetryInitializer>(new CustomTelemetryInitializer("apigw"));
                     services.AddApplicationInsightsTelemetry();
                     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         .AddJwtBearer(options =>
