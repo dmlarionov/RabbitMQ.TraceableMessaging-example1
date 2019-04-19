@@ -24,9 +24,8 @@
     <PackageReference Include="RabbitMQ.TraceableMessaging.Json" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="**\*.json" Exclude="bin\**\*;obj\**\*"
-        CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
+  <!--ItemGroup>
+    <Content Include="**\*.json" Exclude="bin\**\*;obj\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup-->
 
 </Project>

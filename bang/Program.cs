@@ -10,6 +10,9 @@ using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using lib;
 using System.Threading;
+using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
+using lib.DTO;
 
 namespace bang
 {
@@ -23,7 +26,7 @@ namespace bang
 
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
             var config = configBuilder.Build();
 
             // connect to RabbitMQ
@@ -36,7 +39,7 @@ namespace bang
             }).CreateConnection();
 
             // token signing key
-            byte[] tokenKey;
+            byte[] tokenKey = null;
 
             // configure keys through RabbitMQ exchange
             await KeyDistributor.ConfigureAsync(
@@ -53,12 +56,34 @@ namespace bang
             // telemetry client instance
             var telemetry = new TelemetryClient();
 
+            // token validation parameters
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(tokenKey)
+            };
+
+            // security options for RabbitMQ service
+            var securityOptions = new SecurityOptions(
+                // map of request types to scope names
+                new Dictionary<string, string>()
+                {
+                    { nameof(Ping1), "1" },
+                    { nameof(Ping2), "2" }
+                }, 
+                tokenValidationParameters);
+
             // set host configuration
             var hostBuilder = new HostBuilder()
-                .ConfigureHostConfiguration(hostConfig => hostConfig = configBuilder)
+                .ConfigureHostConfiguration(c => c
+                    .SetBasePath(basePath)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true))
                 .ConfigureServices((context, services) => {
                     services.AddSingleton<TelemetryClient>(telemetry);
+                    services.AddSingleton<SecurityOptions>(securityOptions);
                     services.AddSingleton<IConnection>(conn);
+                    services.AddHostedService<BangService>();
                 });
             var host = hostBuilder.Build();
 

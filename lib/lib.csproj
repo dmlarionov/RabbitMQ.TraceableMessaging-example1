@@ -10,6 +10,11 @@
     <PackageReference Include="RabbitMQ.TraceableMessaging.ApplicationInsights"/>
     <PackageReference Include="RabbitMQ.TraceableMessaging.Jwt" />
     <PackageReference Include="RabbitMQ.TraceableMessaging.YamlDotNet" />
+    <PackageReference Include="RabbitMQ.TraceableMessaging.Json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
   </ItemGroup>
 
 </Project>
