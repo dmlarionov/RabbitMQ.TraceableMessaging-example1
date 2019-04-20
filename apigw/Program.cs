@@ -47,12 +47,15 @@ namespace apigw
             // token signing key
             byte[] tokenKey = null;
 
+            // app insights key
+            string appInsKey = null;
+
             // configure keys through RabbitMQ exchange
             await KeyDistributor.ConfigureAsync(
                     config["RabbitMQ:Exchanges:KeyDistribution"],
                     conn,
                     keys => {
-                        TelemetryConfiguration.Active.InstrumentationKey = keys.AppInsightsInstrumKey;
+                        appInsKey = keys.AppInsightsInstrumKey;
                         tokenKey = keys.JwtIssuerKey;
                     });
 
@@ -62,6 +65,7 @@ namespace apigw
             // token validation parameters
             var tokenValidationParameters = new TokenValidationParameters
             {
+                ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(tokenKey)
@@ -79,7 +83,7 @@ namespace apigw
                 {
                     services.AddSingleton<IConnection>(conn);
                     services.AddSingleton<ITelemetryInitializer>(new CustomTelemetryInitializer("apigw"));
-                    services.AddApplicationInsightsTelemetry();
+                    services.AddApplicationInsightsTelemetry(appInsKey);
                     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         .AddJwtBearer(options =>
                         {

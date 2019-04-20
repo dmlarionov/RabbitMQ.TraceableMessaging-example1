@@ -62,6 +62,7 @@ namespace bang
             // token validation parameters
             var tokenValidationParameters = new TokenValidationParameters
             {
+                ValidateAudience = false,
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(tokenKey)

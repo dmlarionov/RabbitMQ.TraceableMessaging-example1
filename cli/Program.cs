@@ -102,7 +102,7 @@ namespace cli
                                     var token = GenToken(tokenKey, username);
                                     http.DefaultRequestHeaders.Authorization =
     new AuthenticationHeaderValue("Bearer", token);
-                                    Console.WriteLine($"Bearer JWT for user '{username}' will be send in header of every request since now.");
+                                    Console.WriteLine($"Bearer JWT for user '{username}' will be sent in the header of every request since now.");
                                 }
                                 else
                                     resp.EnsureSuccessStatusCode();
@@ -181,7 +181,9 @@ namespace cli
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, username)
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim("scope", "1"),
+                    new Claim("scope", "2")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

@@ -44,7 +44,8 @@ namespace apigw.Controllers
 
         [HttpGet]
         public async Task<IActionResult> FooPing1() =>
-            Ok(await fooClient.GetReplyAsync<Pong1>(new Ping1()));
+            Ok(await fooClient.GetReplyAsync<Pong1>(new Ping1(),
+                HttpContext.GetTokenAsync("access_token").Result));
 
         [HttpGet]
         [Authorize]
