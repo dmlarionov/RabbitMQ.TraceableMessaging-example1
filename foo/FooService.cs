@@ -1,5 +1,6 @@
 ﻿using lib;
 using lib.DTO;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.TraceableMessaging.ApplicationInsights;
@@ -17,48 +18,60 @@ namespace foo
 {
     public sealed class FooService : Service
     {
-        private readonly RpcClient barClient;
+        private readonly RpcClient _barClient;
+        private readonly TelemetryClient _telemetry;
 
         public FooService(
             IConnection conn,
             IConfiguration config,
-            SecurityOptions securityOptions)
+            SecurityOptions securityOptions,
+            TelemetryClient telemetry)
                 : base(conn, config, securityOptions)
         {
             var channel = conn.CreateModel();
             var queue = $"foo-bar-reply-{Guid.NewGuid().ToString()}";
             channel.QueueDeclare(queue);
-            barClient = new RpcClient(
+            _barClient = new RpcClient(
                 channel,
                 new PublishOptions(config["RabbitMQ:Services:Bar"]),
                 new ConsumeOptions(queue),
                 new JsonFormatOptions());
+
+            _telemetry = telemetry;
         }
 
         protected override void OnReceive(object sender, RequestEventArgs<TelemetryContext, JwtSecurityContext> ea)
         {
             Console.WriteLine($"{ea.RequestType} received at {DateTime.Now}");
-            // foo just retransmits requests and replies to and from bar
-            switch (ea.RequestType)
+
+            try
             {
-                case nameof(Ping1):
-                    Server.Reply(ea.CorrelationId, 
-                        barClient.GetReply<Pong1>(
-                            ea.GetRequest<Ping1>(), 
-                            ea.Security?.AccessTokenEncoded));
-                    break;
+                // foo just retransmits requests and replies to and from bar
+                switch (ea.RequestType)
+                {
+                    case nameof(Ping1):
+                        Server.Reply(ea.CorrelationId,
+                            _barClient.GetReply<Pong1>(
+                                ea.GetRequest<Ping1>(),
+                                ea.Security?.AccessTokenEncoded));
+                        break;
 
-                case nameof(Ping2):
-                    Server.Reply(ea.CorrelationId, 
-                        barClient.GetReply<Pong2>(
-                            ea.GetRequest<Ping2>(), 
-                            ea.Security?.AccessTokenEncoded));
-                    break;
+                    case nameof(Ping2):
+                        Server.Reply(ea.CorrelationId,
+                            _barClient.GetReply<Pong3>(
+                                new Ping3(ea.GetRequest<Ping2>()),
+                                ea.Security?.AccessTokenEncoded));
+                        break;
 
-                default:
-                    Server.Reply(ea.CorrelationId,
-                        new Reply { Status = ReplyStatus.Fail });
-                    break;
+                    default:
+                        Server.Reply(ea.CorrelationId,
+                            new Reply { Status = ReplyStatus.Fail });
+                        break;
+                }
+            }
+            catch(Exception ex)
+            {
+                _telemetry.TrackException(ex);
             }
         }
     }

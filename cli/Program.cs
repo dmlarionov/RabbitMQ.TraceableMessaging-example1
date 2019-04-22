@@ -62,6 +62,7 @@ namespace cli
                 // We re-await the task so that any exceptions/cancellation is rethrown.
                 await waitPeers;
 
+                bool firstIteration = true;
                 bool shutdown = false;
 
                 // perform demo scenarios based on user choise
@@ -73,7 +74,7 @@ namespace cli
                         try
                         {
                             string url = null;
-                            switch (MainDialog())
+                            switch (MainDialog(firstIteration))
                             {
                                 case '1':
                                     url = "api/demo/fooping1";
@@ -106,6 +107,7 @@ namespace cli
                                 }
                                 else
                                 {
+                                    firstIteration = false;
                                     resp.EnsureSuccessStatusCode();
                                     Console.WriteLine($"HTTP GET '/{url}' completed at {DateTime.Now.ToString()}.");
                                 }
@@ -129,16 +131,19 @@ namespace cli
             Console.WriteLine("Bye!");
         }
 
-        static char MainDialog()
+        static char MainDialog(bool firstIteration)
         {
             Console.WriteLine();
-            Console.WriteLine("Which scenario should we test with API gateway?: ");
+            Console.WriteLine($"Which{(firstIteration?" ":" next ")}scenario should we test with API gateway?: ");
             Console.WriteLine("1) HTTP GET /api/demo/fooping1");
             Console.WriteLine("2) HTTP GET /api/demo/fooping2");
             Console.WriteLine("3) HTTP GET /api/demo/barping1");
             Console.WriteLine("4) HTTP GET /api/demo/barping2");
-            Console.WriteLine();
-            Console.WriteLine("Each HTTP call to API gateway turnes into series of RabbitMQ calls. You can see a distributed trace in your Application Insights instance in Azure portal. You can test scenarios in any order.");
+            if (firstIteration)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Each HTTP call to API gateway turnes into series of RabbitMQ calls. You can see a distributed trace in your Application Insights instance in Azure portal. You can test scenarios in any order.");
+            }
             Console.WriteLine();
             Console.WriteLine("To quit press 'q'.");
             Console.WriteLine();
