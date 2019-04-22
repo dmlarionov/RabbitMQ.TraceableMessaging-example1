@@ -105,7 +105,10 @@ namespace cli
                                     Console.WriteLine($"Bearer JWT for user '{username}' will be sent in the header of every request since now.");
                                 }
                                 else
+                                {
                                     resp.EnsureSuccessStatusCode();
+                                    Console.WriteLine($"HTTP GET '/{url}' completed at {DateTime.Now.ToString()}.");
+                                }
                             }
                         }
                         catch (HttpRequestException ex)
