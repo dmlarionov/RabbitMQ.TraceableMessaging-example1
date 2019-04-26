@@ -74,17 +74,21 @@ namespace bar
                         Server.Reply(ea.CorrelationId, new Pong2());
                         break;
 
-                    case nameof(Ping3):
-                        throw new NotImplementedException();
+                    case nameof(Ping4):
+                        Server.Reply(ea.CorrelationId,
+                            _bangClient.GetReply<Pong3>(
+                                new Ping3(ea.GetRequest<Ping4>()),
+                                ea.Security?.AccessTokenEncoded));
+                        break;
 
                     default:
-                        Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
-                        break;
+                        throw new NotImplementedException($"{ea.RequestType} is not implemented");
                 }
             }
             catch (Exception ex)
             {
                 _telemetry.TrackException(ex);
+                Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
             }
         }
     }

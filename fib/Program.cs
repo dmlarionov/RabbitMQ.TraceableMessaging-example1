@@ -74,7 +74,9 @@ namespace fib
                 new Dictionary<string, string>()
                 {
                     { nameof(Ping1), "1" },
-                    { nameof(Ping2), "2" }
+                    { nameof(Ping2), "2" },
+                    { nameof(Ping3), "3" },
+                    { nameof(Ping4), "4" }
                 },
                 tokenValidationParameters);
 

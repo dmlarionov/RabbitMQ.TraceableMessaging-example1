@@ -62,7 +62,6 @@ namespace cli
                 // We re-await the task so that any exceptions/cancellation is rethrown.
                 await waitPeers;
 
-                bool firstIteration = true;
                 bool shutdown = false;
 
                 // perform demo scenarios based on user choise
@@ -74,19 +73,19 @@ namespace cli
                         try
                         {
                             string url = null;
-                            switch (MainDialog(firstIteration))
+                            switch (MainDialog())
                             {
                                 case '1':
                                     url = "api/demo/fooping1";
                                     break;
                                 case '2':
-                                    url = "api/demo/fooping2";
+                                    url = "api/demo/barping2";
                                     break;
                                 case '3':
-                                    url = "api/demo/barping1";
+                                    url = "api/demo/fibping3";
                                     break;
                                 case '4':
-                                    url = "api/demo/barping2";
+                                    url = "api/demo/fibping4";
                                     break;
                                 case 'q':
                                     shutdown = true;
@@ -107,15 +106,20 @@ namespace cli
                                 }
                                 else
                                 {
-                                    firstIteration = false;
                                     resp.EnsureSuccessStatusCode();
+                                    Console.WriteLine();
+                                    Console.WriteLine("----------------------------------------");
                                     Console.WriteLine($"HTTP GET '/{url}' completed at {DateTime.Now.ToString()}.");
+                                    Console.WriteLine("----------------------------------------");
                                 }
                             }
                         }
                         catch (HttpRequestException ex)
                         {
+                            Console.WriteLine();
+                            Console.WriteLine("----------------------------------------");
                             Console.WriteLine("Message: " + ex.Message);
+                            Console.WriteLine("----------------------------------------");
                         }
                     }
                 }
@@ -131,19 +135,16 @@ namespace cli
             Console.WriteLine("Bye!");
         }
 
-        static char MainDialog(bool firstIteration)
+        static char MainDialog()
         {
             Console.WriteLine();
-            Console.WriteLine($"Which{(firstIteration?" ":" next ")}scenario should we test with API gateway?: ");
+            Console.WriteLine("Which scenario should we test with API gateway?: ");
             Console.WriteLine("1) HTTP GET /api/demo/fooping1");
-            Console.WriteLine("2) HTTP GET /api/demo/fooping2");
-            Console.WriteLine("3) HTTP GET /api/demo/barping1");
-            Console.WriteLine("4) HTTP GET /api/demo/barping2");
-            if (firstIteration)
-            {
-                Console.WriteLine();
-                Console.WriteLine("Each HTTP call to API gateway turnes into series of RabbitMQ calls. You can see a distributed trace in your Application Insights instance in Azure portal. You can test scenarios in any order.");
-            }
+            Console.WriteLine("2) HTTP GET /api/demo/barping2");
+            Console.WriteLine("3) HTTP GET /api/demo/fibping3 (Internal Server Error)");
+            Console.WriteLine("4) HTTP GET /api/demo/fibping4 (Forbidden)");
+            Console.WriteLine();
+            Console.WriteLine("Each HTTP call to API gateway turnes into series of RabbitMQ calls. You can see a distributed trace in your Application Insights instance in Azure portal. You can test scenarios in any order.");
             Console.WriteLine();
             Console.WriteLine("To quit press 'q'.");
             Console.WriteLine();
@@ -191,7 +192,8 @@ namespace cli
                 {
                     new Claim(ClaimTypes.Name, username),
                     new Claim("scope", "1"),
-                    new Claim("scope", "2")
+                    new Claim("scope", "2"),
+                    new Claim("scope", "3")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

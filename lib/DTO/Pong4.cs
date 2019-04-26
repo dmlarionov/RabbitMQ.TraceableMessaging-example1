@@ -5,12 +5,12 @@ using System.Text;
 
 namespace lib.DTO
 {
-    public class Pong3 : Reply
+    public class Pong4 : Reply
     {
-        public Pong4 Result { get; set; }
+        public Pong3 Result { get; set; }
 
-        public Pong3() { }
+        public Pong4() { }
 
-        public Pong3(Pong4 res) => Result = res;
+        public Pong4(Pong3 res) => Result = res;
     }
 }

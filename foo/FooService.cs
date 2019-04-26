@@ -56,22 +56,21 @@ namespace foo
                                 ea.Security?.AccessTokenEncoded));
                         break;
 
-                    case nameof(Ping2):
+                    case nameof(Ping3):
                         Server.Reply(ea.CorrelationId,
-                            _barClient.GetReply<Pong3>(
-                                new Ping3(ea.GetRequest<Ping2>()),
-                                ea.Security?.AccessTokenEncoded));
+                            new Pong3(_barClient.GetReply<Pong4>(
+                                ea.GetRequest<Ping3>().Value ?? new Ping4(),
+                                ea.Security?.AccessTokenEncoded)));
                         break;
 
                     default:
-                        Server.Reply(ea.CorrelationId,
-                            new Reply { Status = ReplyStatus.Fail });
-                        break;
+                        throw new NotImplementedException($"{ea.RequestType} is not implemented");
                 }
             }
             catch(Exception ex)
             {
                 _telemetry.TrackException(ex);
+                Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
             }
         }
     }

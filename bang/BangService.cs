@@ -43,14 +43,18 @@ namespace bang
                         Server.Reply(ea.CorrelationId, new Pong2());
                         break;
 
+                    case nameof(Ping3):
+                    case nameof(Ping4):
+                        throw new Exception("I can't withstand this!");
+
                     default:
-                        Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
-                        break;
+                        throw new NotImplementedException($"{ea.RequestType} is not implemented");
                 }
             }
             catch(Exception ex)
             {
                 _telemetry.TrackException(ex);
+                Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
             }
         }
     }
