@@ -19,13 +19,11 @@ namespace foo
     public sealed class FooService : Service
     {
         private readonly RpcClient _barClient;
-        private readonly TelemetryClient _telemetry;
 
         public FooService(
             IConnection conn,
             IConfiguration config,
-            SecurityOptions securityOptions,
-            TelemetryClient telemetry)
+            SecurityOptions securityOptions)
                 : base(conn, config, securityOptions)
         {
             var channel = conn.CreateModel();
@@ -36,8 +34,6 @@ namespace foo
                 new PublishOptions(config["RabbitMQ:Services:Bar"]),
                 new ConsumeOptions(queue),
                 new JsonFormatOptions());
-
-            _telemetry = telemetry;
         }
 
         protected override void OnReceive(object sender, RequestEventArgs<TelemetryContext, JwtSecurityContext> ea)
@@ -69,8 +65,7 @@ namespace foo
             }
             catch(Exception ex)
             {
-                _telemetry.TrackException(ex);
-                Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
+                Server.Fail(ea, ex);
             }
         }
     }

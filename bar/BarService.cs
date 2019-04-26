@@ -21,13 +21,11 @@ namespace bar
     {
         private readonly RpcClient _bangClient;
         private readonly RpcClient _fibClient;
-        private readonly TelemetryClient _telemetry;
 
         public BarService(
             IConnection conn,
             IConfiguration config,
-            SecurityOptions securityOptions,
-            TelemetryClient telemetry)
+            SecurityOptions securityOptions)
                 : base(conn, config, securityOptions)
         {
             var bangChannel = conn.CreateModel();
@@ -47,8 +45,6 @@ namespace bar
                 new PublishOptions(config["RabbitMQ:Services:Fib"]),
                 new ConsumeOptions(fibQueue),
                 new JsonFormatOptions());
-
-            _telemetry = telemetry;
         }
 
         protected override void OnReceive(object sender, RequestEventArgs<TelemetryContext, JwtSecurityContext> ea)
@@ -87,8 +83,7 @@ namespace bar
             }
             catch (Exception ex)
             {
-                _telemetry.TrackException(ex);
-                Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
+                Server.Fail(ea, ex);
             }
         }
     }

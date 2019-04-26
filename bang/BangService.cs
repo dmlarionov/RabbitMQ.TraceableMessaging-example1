@@ -15,16 +15,12 @@ namespace bang
 {
     public sealed class BangService : Service
     {
-        private readonly TelemetryClient _telemetry;
-
         public BangService(
             IConnection conn, 
             IConfiguration config, 
-            SecurityOptions securityOptions,
-            TelemetryClient telemetry) 
+            SecurityOptions securityOptions) 
                 : base(conn, config, securityOptions)
         {
-            _telemetry = telemetry;
         }
 
         override protected void OnReceive(object sender, RequestEventArgs<TelemetryContext, JwtSecurityContext> ea)
@@ -53,8 +49,7 @@ namespace bang
             }
             catch(Exception ex)
             {
-                _telemetry.TrackException(ex);
-                Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
+                Server.Fail(ea, ex);
             }
         }
     }

@@ -193,7 +193,8 @@ namespace cli
                     new Claim(ClaimTypes.Name, username),
                     new Claim("scope", "1"),
                     new Claim("scope", "2"),
-                    new Claim("scope", "3")
+                    new Claim("scope", "3"),
+                    new Claim("scope", "4")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

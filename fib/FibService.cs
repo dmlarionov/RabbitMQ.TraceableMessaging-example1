@@ -19,13 +19,11 @@ namespace fib
     public sealed class FibService : Service
     {
         private readonly RpcClient _fooClient;
-        private readonly TelemetryClient _telemetry;
 
         public FibService(
             IConnection conn,
             IConfiguration config,
-            SecurityOptions securityOptions,
-            TelemetryClient telemetry)
+            SecurityOptions securityOptions)
                 : base(conn, config, securityOptions)
         {
             var fooChannel = conn.CreateModel();
@@ -36,8 +34,6 @@ namespace fib
                 new PublishOptions(config["RabbitMQ:Services:Foo"]),
                 new ConsumeOptions(fooQueue),
                 new JsonFormatOptions());
-
-            _telemetry = telemetry;
         }
 
         override protected void OnReceive(object sender, RequestEventArgs<TelemetryContext, JwtSecurityContext> ea)
@@ -72,8 +68,7 @@ namespace fib
             }
             catch(Exception ex)
             {
-                _telemetry.TrackException(ex);
-                Server.Reply(ea.CorrelationId, new Reply { Status = ReplyStatus.Fail });
+                Server.Fail(ea, ex);
             }
         }
     }
