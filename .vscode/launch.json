@@ -13,7 +13,51 @@
             "args": [],
             "cwd": "${workspaceFolder}/cli",
             "stopAtEntry": false,
-            "console": "internalConsole"
+            "console": "externalTerminal"
+        },
+        {
+            "name": "apigw",
+            "type": "coreclr",
+            "request": "launch",
+            // "preLaunchTask": "build",
+            "program": "${workspaceFolder}/apigw/bin/Debug/netcoreapp2.2/apigw.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/apigw",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "bang",
+            "type": "coreclr",
+            "request": "launch",
+            // "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bang/bin/Debug/netcoreapp2.2/bang.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/bang",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "bar",
+            "type": "coreclr",
+            "request": "launch",
+            // "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bar/bin/Debug/netcoreapp2.2/bar.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/bar",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "fib",
+            "type": "coreclr",
+            "request": "launch",
+            // "preLaunchTask": "build",
+            "program": "${workspaceFolder}/fib/bin/Debug/netcoreapp2.2/fib.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/fib",
+            "console": "internalConsole",
+            "stopAtEntry": false
         },
         {
             "name": "foo",
@@ -26,11 +70,17 @@
             "console": "internalConsole",
             "stopAtEntry": false
         },
+        // {
+        //     "name": ".NET Core Attach",
+        //     "type": "coreclr",
+        //     "request": "attach",
+        //     "processId": "${command:pickProcess}"
+        // }
+    ],
+    "compounds": [
         {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
+            "name": "RUN ALL",
+            "configurations": ["cli", "apigw", "bar", "fib", "bang", "foo"]
         }
     ]
 }
