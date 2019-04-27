@@ -4,3 +4,13 @@ services:
     image: rabbitmq
     ports:
       - 5672:5672
+  apigw:
+    build:
+      dockerfile: apigw.Dockerfile
+      context: .
+    ports:
+      - 59023:59023
+  bang:
+    build:
+      dockerfile: bang.Dockerfile
+      context: .
