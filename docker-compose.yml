@@ -14,3 +14,15 @@ services:
     build:
       dockerfile: bang.Dockerfile
       context: .
+  bar:
+    build:
+      dockerfile: bar.Dockerfile
+      context: .
+  fib:
+    build:
+      dockerfile: fib.Dockerfile
+      context: .
+  foo:
+    build:
+      dockerfile: foo.Dockerfile
+      context: .

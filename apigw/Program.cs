@@ -87,7 +87,6 @@ namespace apigw
                     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         .AddJwtBearer(options =>
                         {
-                            options.Audience = "http://localhost:5001";
                             options.TokenValidationParameters = tokenValidationParameters;
                             options.SaveToken = true;
                         });
