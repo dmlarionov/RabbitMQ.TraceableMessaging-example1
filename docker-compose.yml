@@ -8,21 +8,31 @@ services:
     build:
       dockerfile: apigw.Dockerfile
       context: .
+    depends_on:
+      - rabbitmq
     ports:
       - 59023:59023
   bang:
     build:
       dockerfile: bang.Dockerfile
       context: .
+    depends_on:
+      - rabbitmq
   bar:
     build:
       dockerfile: bar.Dockerfile
       context: .
+    depends_on:
+      - rabbitmq
   fib:
     build:
       dockerfile: fib.Dockerfile
       context: .
+    depends_on:
+      - rabbitmq
   foo:
     build:
       dockerfile: foo.Dockerfile
       context: .
+    depends_on:
+      - rabbitmq
