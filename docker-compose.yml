@@ -2,8 +2,6 @@ version: "3"
 services:
   rabbitmq:
     image: rabbitmq
-    ports:
-      - 5672:5672
   cli:
     build:
       dockerfile: cli.Dockerfile

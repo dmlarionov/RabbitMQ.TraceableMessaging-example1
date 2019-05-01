@@ -63,6 +63,8 @@ docker-compose run cli
 4. Press `q` to quit CLI.
 5. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
 
+// FIXME: refer to `rabbitmq` by its container name and `appsettings`, but override to localhost in `appsettings.Development.json`.
+
 ## Approach 2 (Visual Studio Code)
 
 1. Start RabbitMQ:
