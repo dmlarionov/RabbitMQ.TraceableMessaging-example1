@@ -36,13 +36,7 @@ namespace apigw
             var config = configBuilder.Build();
 
             // connect to RabbitMQ
-            var conn = (new ConnectionFactory()
-            {
-                HostName = config["RabbitMQ:Connection:Hostname"],
-                UserName = config["RabbitMQ:Connection:Username"],
-                Password = config["RabbitMQ:Connection:Password"],
-                VirtualHost = config["RabbitMQ:Connection:Vhost"]
-            }).CreateConnection();
+            var conn = Utils.ConnectRabbitMQ(config);
 
             // token signing key
             byte[] tokenKey = null;

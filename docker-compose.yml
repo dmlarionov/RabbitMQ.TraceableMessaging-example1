@@ -4,6 +4,17 @@ services:
     image: rabbitmq
     ports:
       - 5672:5672
+  cli:
+    build:
+      dockerfile: cli.Dockerfile
+      context: .
+    depends_on:
+      - rabbitmq
+      - apigw
+      - bang
+      - bar
+      - fib
+      - foo
   apigw:
     build:
       dockerfile: apigw.Dockerfile

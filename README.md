@@ -16,28 +16,29 @@ You need Azure with Application Insights instance. If you don't have Azure by no
 
 ![](./_media/ai-taking-instrumentation-key.png)
 
-## Install .NET Core SDK
-
-You need .NET Core SDK 2.2. Download it from [here](https://dotnet.microsoft.com/download/dotnet-core/2.2) then install or check if you have it:
-
-```
-dotnet --list-sdks
-```
-
 ## Install Docker
 
-Probably, you'll prefer to use docker to start RabbitMQ instance. Otherwise, you can use RabbitMQ service installed anywhere by configuring application settings (`appsettings.json`) for each microservice (`bang`, `bar`, `fib`, `foo`), API gateway (`apigw`) and CLI (`cli`) with appropriate credentials, but all they are already tested with default settings and default `rabbitmq` docker image.
-
-Go to [Docker Desktop](https://www.docker.com/products/docker-desktop) then install it or check if you have docker and compose:
+Probably, you'll prefer to use Docker to start everything. Go to [Docker Desktop](https://www.docker.com/products/docker-desktop) then install it or check if you have docker and compose:
 
 ```
 docker version
 docker-compose version
 ```
+I have tested with Docker Engine - Community 18.09.2 and docker-compose version 1.23.2. I believe higher versions should work.
+
+## Install .NET Core SDK
+
+If you like to start in VS Code or Visual Studio then you need .NET Core SDK 2.2. Download it from [here](https://dotnet.microsoft.com/download/dotnet-core/2.2) then install or check if you have it:
+
+```
+dotnet --list-sdks
+```
+
+It's not necessary to have .NET Core SDK or VS Code / VS, you may just `docker-compose run cli`, but you may like to debug with it.
 
 ## Install VS Code or Visual Studio
 
-Neither is required, use an approach to build and run that is convenient for you. So below are described three of them - one based on VS Code, another on Visual Studio and last one is everything in Docker way (except CLI which is the client).
+Neither is required, use an approach to build and run that is convenient for you. So below three of them are described - everything in Docker, approach based on VS Code, another on Visual Studio.
 
 ## Clone repository
 
@@ -49,7 +50,20 @@ git clone https://github.com/dmlarionov/RabbitMQ.TraceableMessaging-example1.git
 
 # Build and run
 
-## Approach 1 (Visual Studio Code)
+## Approach 1 (Everything in Docker)
+
+1. Start everything and attach to CLI:
+
+```
+docker-compose run cli
+```
+
+2. Paste App Insights instrumentation key into CLI.
+3. Play with scenarios.
+4. Press `q` to quit CLI.
+5. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
+
+## Approach 2 (Visual Studio Code)
 
 1. Start RabbitMQ:
 
@@ -68,7 +82,7 @@ docker-compose -f .\docker-compose.rabbitmq.yml up
 
 // FIXME: ensure that `apigw` run on http://localhost:59023.
 
-## Approach 2 (Visual Studio)
+## Approach 3 (Visual Studio)
 
 1. Start RabbitMQ:
 
@@ -92,31 +106,12 @@ docker-compose -f .\docker-compose.rabbitmq.yml up
 9. Stop docker-compose (`Ctrl` + `C` in its terminal window).
 10. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
 
-## Approach 3 (Everything in Docker)
-
-1. Start everything except CLI in Docker:
-
-```
-docker-compose up
-```
-
-2. Start CLI:
-
-```
-dotnet run -p .\cli\
-```
-
-3. Paste App Insights instrumentation key into CLI.
-4. Play with scenarios.
-5. Press `q` to quit CLI.
-6. Stop docker-compose (`Ctrl` + `C` in its terminal window).
-7. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
-
-// FIXME: add resilience to all projects for RabbitMQ unavailability at startup.
-
 # Playing with scenarios
 
 
 
 # Scrutinizing Application Insights
 
+
+
+# How the code of this demo is organized?

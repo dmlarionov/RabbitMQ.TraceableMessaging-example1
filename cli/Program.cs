@@ -32,15 +32,8 @@ namespace cli
             var config = configBuilder.Build();
 
             // connect to RabbitMQ
-            var conn = (new ConnectionFactory()
-                {
-                    HostName = config["RabbitMQ:Connection:Hostname"],
-                    UserName = config["RabbitMQ:Connection:Username"],
-                    Password = config["RabbitMQ:Connection:Password"],
-                    VirtualHost = config["RabbitMQ:Connection:Vhost"]
-                })
-                .CreateConnection();
-
+            var conn = Utils.ConnectRabbitMQ(config);
+            
             // wait peers to be ready
             var waitPeers = ReadyChecker.WaitPeersAsync(config["RabbitMQ:Exchanges:ReadyCheck"], conn, new List<string> { "apigw", "bang", "bar", "fib", "foo" });
 
