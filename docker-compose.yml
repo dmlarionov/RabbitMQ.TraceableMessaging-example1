@@ -14,7 +14,7 @@ services:
       - fib
       - foo
     environment:
-      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
+      - RabbitMQ__Connection__Hostname=rabbitmq
   apigw:
     build:
       dockerfile: apigw.Dockerfile
@@ -22,7 +22,7 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
+      - RabbitMQ__Connection__Hostname=rabbitmq
   bang:
     build:
       dockerfile: bang.Dockerfile
@@ -30,7 +30,7 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
+      - RabbitMQ__Connection__Hostname=rabbitmq
   bar:
     build:
       dockerfile: bar.Dockerfile
@@ -38,7 +38,7 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
+      - RabbitMQ__Connection__Hostname=rabbitmq
   fib:
     build:
       dockerfile: fib.Dockerfile
@@ -46,7 +46,7 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
+      - RabbitMQ__Connection__Hostname=rabbitmq
   foo:
     build:
       dockerfile: foo.Dockerfile
@@ -54,4 +54,4 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
+      - RabbitMQ__Connection__Hostname=rabbitmq

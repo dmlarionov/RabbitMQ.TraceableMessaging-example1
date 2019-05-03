@@ -64,7 +64,7 @@ docker-compose run cli
 5. Stop everything:
 
 ```
-docker-compose stop
+docker-compose down
 ```
 
 6. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.

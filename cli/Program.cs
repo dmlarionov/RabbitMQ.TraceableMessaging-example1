@@ -53,7 +53,7 @@ namespace cli
             await KeyDistributor.ConfigurePeersAsync(config["RabbitMQ:Exchanges:KeyDistribution"], conn, new Keys { AppInsightsInstrumKey = instrumKey, JwtIssuerKey = tokenKey });
 
             // if peers are ready
-            if (await Task.WhenAny(waitPeers, Task.Delay(10000)) == waitPeers)
+            if (await Task.WhenAny(waitPeers, Task.Delay(15000)) == waitPeers)
             {
                 // Task completed within timeout.
                 // Consider that the task may have faulted or been canceled.

@@ -18,8 +18,8 @@ namespace lib
                 VirtualHost = config["RabbitMQ:Connection:Vhost"]
             };
 
-            // make retries after 1ms, 10ms, 0.1s, 1s, 5s, 10s
-            int[] wait = {100, 500, 1000, 2500, 5000, 7500};
+            // make retries with following waits
+            int[] wait = {500, 500, 1000, 1000, 1000, 1000, 2000, 2000, 2000, 2000, 2000};
             for (int i = 0; i < wait.Length; i++)
             {
                 try
@@ -31,7 +31,7 @@ namespace lib
                     Thread.Sleep(wait[i]);
                 }
             }
-            throw new Exception("Can't connect to RabbitMQ");
+            throw new Exception($"Can't connect to RabbitMQ (hostname: {config["RabbitMQ:Connection:Hostname"]})");
         }
     }
 }
