@@ -97,7 +97,7 @@ namespace fib
 
             // flush telemetry
             telemetry?.Flush();
-            Task.Delay(500).Wait();
+            Task.Delay(1000).Wait();
             Console.WriteLine("Bye!");
         }
     }
