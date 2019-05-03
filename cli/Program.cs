@@ -28,7 +28,12 @@ namespace cli
             // build config
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddEnvironmentVariables();
+            
+            if (Debugger.IsAttached)
+                configBuilder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false);
+            
             var config = configBuilder.Build();
 
             // connect to RabbitMQ
@@ -121,7 +126,7 @@ namespace cli
             {
                 // timeout/cancellation logic
                 Console.WriteLine();
-                Console.WriteLine("Sorry, but some services are not ready for this demo. Check if docker is running all containters of docker-compose.yml.");
+                Console.WriteLine("Sorry, but not all services are ready for demo.");
                 await Shutdowner.ShutdownPeersAsync(config["RabbitMQ:Exchanges:Shutdown"], conn);
                 return;
             }

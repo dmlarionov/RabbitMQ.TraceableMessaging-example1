@@ -26,7 +26,8 @@ namespace bar
 
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddEnvironmentVariables();
             var config = configBuilder.Build();
 
             // connect to RabbitMQ

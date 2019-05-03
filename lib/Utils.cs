@@ -18,10 +18,9 @@ namespace lib
                 VirtualHost = config["RabbitMQ:Connection:Vhost"]
             };
 
-            // make retries after 3ms, 30ms, 0.3s, 3s, 30s
-            int wait = 3;
-            bool continue_ = true;
-            do
+            // make retries after 1ms, 10ms, 0.1s, 1s, 5s, 10s
+            int[] wait = {100, 500, 1000, 2500, 5000, 7500};
+            for (int i = 0; i < wait.Length; i++)
             {
                 try
                 {
@@ -29,16 +28,9 @@ namespace lib
                 }
                 catch(BrokerUnreachableException)
                 {
-                    if (wait <= 30000)  // less than 30s
-                    {
-                        Thread.Sleep(wait);
-                        wait *=10;
-                    }
-                    else
-                        continue_ = false;
+                    Thread.Sleep(wait[i]);
                 }
             }
-            while(continue_);
             throw new Exception("Can't connect to RabbitMQ");
         }
     }

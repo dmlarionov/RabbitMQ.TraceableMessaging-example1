@@ -13,6 +13,8 @@ services:
       - bar
       - fib
       - foo
+    environment:
+      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
   apigw:
     build:
       dockerfile: apigw.Dockerfile
@@ -21,27 +23,37 @@ services:
       - rabbitmq
     ports:
       - 59023:59023
+    environment:
+      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
   bang:
     build:
       dockerfile: bang.Dockerfile
       context: .
     depends_on:
       - rabbitmq
+    environment:
+      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
   bar:
     build:
       dockerfile: bar.Dockerfile
       context: .
     depends_on:
       - rabbitmq
+    environment:
+      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
   fib:
     build:
       dockerfile: fib.Dockerfile
       context: .
     depends_on:
       - rabbitmq
+    environment:
+      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq
   foo:
     build:
       dockerfile: foo.Dockerfile
       context: .
     depends_on:
       - rabbitmq
+    environment:
+      - RABBITMQ__CONNECTION__HOSTNAME=rabbitmq

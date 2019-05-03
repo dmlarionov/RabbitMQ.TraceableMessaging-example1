@@ -29,7 +29,9 @@ namespace apigw
 
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddEnvironmentVariables();
+            
             if (Debugger.IsAttached)
                 configBuilder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false);
 

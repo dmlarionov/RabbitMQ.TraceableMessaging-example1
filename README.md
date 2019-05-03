@@ -60,10 +60,16 @@ docker-compose run cli
 
 2. Paste App Insights instrumentation key into CLI.
 3. Play with scenarios.
-4. Press `q` to quit CLI.
-5. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
+4. Press `q` to quit CLI or `Ctrl`+`C`.
+5. Stop everything:
 
-// FIXME: refer to `rabbitmq` by its container name and `appsettings`, but override to localhost in `appsettings.Development.json`.
+```
+docker-compose stop
+```
+
+6. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
+
+// FIXME: doesn't run (not all services are ready for demo)
 
 ## Approach 2 (Visual Studio Code)
 
@@ -82,8 +88,6 @@ docker-compose -f .\docker-compose.rabbitmq.yml up
 8. Stop docker-compose (`Ctrl` + `C` in its terminal window).
 9. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
 
-// FIXME: ensure that `apigw` run on http://localhost:59023.
-
 ## Approach 3 (Visual Studio)
 
 1. Start RabbitMQ:
@@ -96,17 +100,13 @@ docker-compose -f .\docker-compose.rabbitmq.yml up
 
 ![](./_media/solution-properties.png)
 
-3. You have to start `apigw` on HTTP port that `cli` will access to. In `appsetting.json` of `cli` there are `ApiGW:Url` parameter that configured to http://localhost:59023. So check `apigw` web server settings:
-
-![](./_media/apigw-webserver-settings.png)
-
-4. Build solution.
-5. Start then find CLI terminal window.
-6. Paste App Insights instrumentation key into CLI.
-7. Play with scenarios.
-8. Press `q` to quit then stop debug in Visual Studio (`Shift` + `F5`).
-9. Stop docker-compose (`Ctrl` + `C` in its terminal window).
-10. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
+3. Build solution.
+4. Run and find CLI terminal window.
+5. Paste App Insights instrumentation key into CLI.
+6. Play with scenarios.
+7. Press `q` to quit then stop debug in Visual Studio (`Shift` + `F5`).
+8. Stop docker-compose (`Ctrl` + `C` in its terminal window).
+9. Wait five minutes then scrutinize results in Application Insights instance at Azure portal.
 
 # Playing with scenarios
 
