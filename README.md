@@ -42,10 +42,8 @@ Neither is required, use an approach to build and run that is convenient for you
 
 ## Clone repository
 
-Clone `RabbitMQ.TraceableMessaging-example1` wherever you prefer:
-
 ```
-git clone https://github.com/dmlarionov/RabbitMQ.TraceableMessaging-example1.git <...>
+git clone https://github.com/dmlarionov/RabbitMQ.TraceableMessaging-example1.git
 ```
 
 # Build and run
