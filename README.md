@@ -158,7 +158,7 @@ So you will be asked for username after your first request. If you start with sc
 
 # How the code is organized?
 
-Here is short explanation of essential things about the code of API gateway and microservices. Real applications can be built with similar approach. You nave to know C# to understand this part.
+Here is short explanation of essential things about the code of API gateway and microservices. Real applications can be built with similar approach. You have to know C# to understand this part.
 
 If you just want to see what distributed traces looks like go to [Scrutinizing Application Insights](#Scrutinizing-Application-Insights).
 
