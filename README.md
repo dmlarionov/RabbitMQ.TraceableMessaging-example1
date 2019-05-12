@@ -374,6 +374,6 @@ Other APM tools have similar abilities. Most of them are based on [Open Tracing 
 
 Both Application Insights (AI) and Open Tracing (OT) bind (upstream) requests to (downstream) dependency calls by putting some information into message headers then tailor up telemetry events in the cloud.
 
-This is demo of implementation AI distributed tracing for RabbitMQ.
+This is demo of implementation of AI distributed tracing for RabbitMQ ([RabbitMQ.TraceableMessaging](https://github.com/dmlarionov/RabbitMQ.TraceableMessaging)) that complements AI distributed tracing implemented for HTTP by Microsoft.
 
-Can you benefit from that? If yes, please feel free to contribute to [RabbitMQ.TraceableMessaging](https://github.com/dmlarionov/RabbitMQ.TraceableMessaging) by implementing support for Open Tracing, tests, performance improvements or by making publications about technology.
+Can you benefit from that? If yes please feel free to contribute to [RabbitMQ.TraceableMessaging](https://github.com/dmlarionov/RabbitMQ.TraceableMessaging) by implementing support for other APM tools, tests, performance improvements or by making publications about technology.
