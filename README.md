@@ -2,7 +2,7 @@
 
 This is demo project for [RabbitMQ.TraceableMessaging](https://github.com/dmlarionov/RabbitMQ.TraceableMessaging) with Application Insights.
 
-It shows how communications between microservices can be built over RabbitMQ with distributed traceability. You can benefit from scrutinizing this project if you:
+It shows how communications between microservices can be built over RabbitMQ with distributed tracing. You can benefit from scrutinizing this project if you:
 
 1. Need example of what distributed tracing is.
 2. Need example for drilling down from unsuccessful entry point (API gateway) request through backend microservice dependency calls to find out request failure root cause and figuring out how distributed tracing can benefit for you.
