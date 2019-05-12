@@ -364,7 +364,7 @@ Let's see what was exception in the `bang` microservice:
 
 ![](./_media/ai-fib-foo-bang-exception.png)
 
-We got it! The reason of investigated failure for `fib` -> `foo` dependency call which led to failure of HTTP GET Demo/FibPing3 request was `System.Exception` with message "I can't withstand this!" happened in `bang` microservice.
+We got it! The reason of investigated failure of `fib` -> `foo` dependency call which led to failure of HTTP GET Demo/FibPing3 request was `System.Exception` with message "I can't withstand this!" happened in `bang` microservice.
 
 # Conclusion
 
