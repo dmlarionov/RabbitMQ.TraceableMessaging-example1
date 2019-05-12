@@ -216,7 +216,7 @@ var hostBuilder = new WebHostBuilder()
     })
 ```
 
-`SaveToken = true` is needed for `HttpContext.GetTokenAsync("access_token")` in controller to success.
+`SaveToken = true` is needed for `HttpContext.GetTokenAsync("access_token")` in controller to succeed.
 
 In real application you'll have to validate issuer and audience (if audience is an API gateway).
 
