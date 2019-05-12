@@ -322,7 +322,7 @@ var hostBuilder = new HostBuilder()
 
 Instance of `SecurityOptions` is passed to service class with constructor injection. Class `SecurityOptions` is defined in `lib` project as descendant of `JwtSecurityOptions` with `Authorize` delegate which uses dictionary to match request types with scopes. In the example above token have to possess scope "1" for request of type `Ping1`, possess scope "2" for request of type `Ping2` and so on. 
 
-In real application you'll have to validate issuer and may be audience (if audience is a microservice), also you may have you own security options implementation with different logic.
+In real application you'll have to validate issuer and may be audience (if audience is a microservice), also you may have your own security options implementation with different logic.
 
 # Scrutinizing Application Insights
 
@@ -330,7 +330,7 @@ After short period of time, when all statistics sent to Application Insights wil
 
 ![](./_media/ai-app-map.png)
 
-If you want to align services upstream to downstream from let to right you can switch to hierarchical map:
+If you want to align services upstream to downstream from left to right you can switch to hierarchical map:
 
 ![](./_media/ai-app-hierarchy.png)
 
@@ -344,11 +344,11 @@ Let's take a look why 100% of calls from fib to foo are red:
 
 
 
-You see that there are 45 failed requests and 28 forbidden. Let's dive into failed requests:
+You see that there are 45 failed requests and 28 are forbidden. Let's dive into failed requests:
 
 ![](./_media/ai-fib-foo-failures.png)
 
-You can see the time periods when failures and dependency calls had spikes. Let's scope time to the spike and drill into these 25 dependencies:
+You can see the time periods when failures and dependency calls had spikes. Let's scope time around the spike and drill into these 25 dependencies:
 
 ![](./_media/ai-fib-foo-25-drill.png)
 
@@ -364,7 +364,7 @@ Let's see what was exception in the `bang` microservice:
 
 ![](./_media/ai-fib-foo-bang-exception.png)
 
-We got it! The reason of investigated failure of call from `fib` to `foo` which led to HTTP GET Demo/FibPing3 failure was `System.Exception` with message "I can't withstand this!" happened in `bang` microservice.
+We got it! The reason of investigated failure for `fib` -> `foo` dependency call which led to failure of HTTP GET Demo/FibPing3 request was `System.Exception` with message "I can't withstand this!" happened in `bang` microservice.
 
 # Conclusion
 
