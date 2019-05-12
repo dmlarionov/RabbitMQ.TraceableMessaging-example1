@@ -8,6 +8,8 @@ It shows how communications between microservices can be built over RabbitMQ wit
 2. Need example for drilling down from unsuccessful entry point (API gateway) request through backend microservice dependency calls to find out request failure root cause and figuring out how distributed tracing can benefit for you.
 3. Learn how to implement microservices over message bus with [RabbitMQ.TraceableMessaging](https://github.com/dmlarionov/RabbitMQ.TraceableMessaging).
 
+You don't need to know C# to reach first 2 goals.
+
 # Preparation
 
 ## Create Application Insights
@@ -156,7 +158,7 @@ So you will be asked for username after your first request. If you start with sc
 
 # How the code is organized?
 
-Here is short explanation of essential things about the code of API gateway and microservices. Real application can be built with similar approach.
+Here is short explanation of essential things about the code of API gateway and microservices. Real applications can be built with similar approach. You nave to know C# to understand this part.
 
 If you just want to see what distributed traces looks like go to [Scrutinizing Application Insights](#Scrutinizing-Application-Insights).
 
